@@ -1,0 +1,3 @@
+pysoem
+struct
+bleak

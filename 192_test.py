@@ -1,6 +1,7 @@
 from fei_ethercat_192 import *
 from fei_pdo import *
 import threading
+import random
 
 gv = global_vars()
 ec = etherCAT()
@@ -33,8 +34,16 @@ for i in range(len(pdo.extraBytes)):
 
 while(1):
   # Loop through slot types:
+  red = random.randint(0,255)
+  green = random.randint(0,200)
+  blue = random.randint(10,255)
   for i in range(32):
     pdo.slot_aux[i] = j
+    
+    # Send random RGB values instead.
+    pdo.slot_command[i] = red
+    pdo.slot_data[i] = abs(green - (red/2))
+    pdo.slot_aux[i] = abs(blue - (red/3))
     
   if j < 6: j=j+1
   else: j=1
@@ -43,18 +52,21 @@ while(1):
   print("GO")
   print(pdo.slot_aux[i])
   
-  ec.master.slaves[0].output = packed
-  ec.master.send_processdata()
-  ec.master.receive_processdata(2000)
-  packed_input = ec.master.slaves[0].input
-  pdo.unpack_input(packed_input)
-  # for slave in ec.master.slaves:
-  #   slave.output = packed
-  #   ec.master.send_processdata()
-  #   ec.master.receive_processdata(5000)
-  #   packed_input = slave.input #ec.master.slaves[0].input
-  #   # print(packed_input)
-  #   pdo.unpack_input(packed_input)
+  # ec.master.slaves[0].output = packed
+  # ec.master.send_processdata()
+  # ec.master.receive_processdata(2000)
+  # packed_input = ec.master.slaves[0].input
+  # pdo.unpack_input(packed_input)
+  
+  for slave in ec.master.slaves:
+    slave.output = packed
+    ec.master.send_processdata()
+    # time.sleep(.5)
+    ec.master.receive_processdata(5000)
+    # time.sleep(1)
+    packed_input = slave.input #ec.master.slaves[0].input
+    # print(packed_input)
+    pdo.unpack_input(packed_input)
     
   print(f"Slot Command: {pdo.slot_command_in}")
   print(f"Slot data: {pdo.slot_data_in}")
@@ -63,6 +75,8 @@ while(1):
 
   # Read INPUT PDO
       
-  time.sleep(.5)
-    
-ec.close_ec()
+  time.sleep(1)
+  
+  if(len(ec.master.slaves) == 0):
+    ec.close_ec()
+    break    
