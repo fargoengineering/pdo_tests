@@ -20,8 +20,19 @@ ec.run_ec()
 
 def reset_slot_commands():
     for i in range(len(pdo.slot_command)):
-        pdo.slot_command[i] = 0    
-    
+        pdo.slot_command[i] = 12    
+
+def send_pdo():
+    if len(ec.master.slaves) == 0:
+        print("NO DEVICES ONLINE!")
+        return False
+    for slave in ec.master.slaves:
+        print("Connected to "+slave.name)
+        slave.output = packed
+        ec.master.send_processdata()
+        ec.master.receive_processdata(5000)
+    return True
+
 
 if __name__ == "__main__":            
     for bank in range(1, num_banks + 1):
@@ -51,16 +62,18 @@ if __name__ == "__main__":
         
         print(pdo.slot_command)
         # Send the pdo to enable the current bank:
-        for slave in ec.master.slaves:
-            slave.output = packed
-            ec.master.send_processdata()
-            ec.master.receive_processdata(5000)
-            
-        time.sleep(5)
+        if send_pdo() == False:
+            break
+
+        # stop sending ble on command    
+        # reset_slot_commands()
+        # if send_pdo() == False:
+        #     break
+
+        time.sleep(3)
             
         # now that ble should be active, start the ota process:
         update()
 
-        # repeat until all banks updated.
-            
-                
+        time.sleep(3)
+        # repeat until all banks updated.                

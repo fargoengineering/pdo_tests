@@ -224,10 +224,12 @@ def split_and_append(input_string, existing_dict):
 def update():
     print(header)
     
+    slots.clear()
+    
     asyncio.run(discover())
 
     for key in slots:
-
+        sleep(3)
         ble_address = key
         
         print(f"Programming to {slots[key]}")
@@ -235,7 +237,7 @@ def update():
         # Check if the address is valid
         if not is_valid_address(ble_address):
             print(f"Invalid Address: {ble_address}")
-            exit(2)
+            # exit(2)
 
         # Check if the file exists
         if not os.path.exists(filename):
@@ -250,8 +252,8 @@ def update():
             exit(0)
         except OSError:
             print("\nExiting (OSError)...")
-            exit(1)
+            # exit(1)
         except Exception:
             import traceback
             traceback.print_exc()
-            exit(2)
+            # exit(2)

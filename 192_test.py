@@ -39,12 +39,11 @@ while(1):
   blue = random.randint(10,255)
   for i in range(32):
     pdo.slot_aux[i] = j
-    
     # Send random RGB values instead.
     pdo.slot_command[i] = red
-    pdo.slot_data[i] = abs(green - (red/2))
-    pdo.slot_aux[i] = abs(blue - (red/3))
-    
+    pdo.slot_data[i] = green
+    pdo.slot_aux[i] = blue
+  
   if j < 6: j=j+1
   else: j=1
   packed = pdo.pack_output()
