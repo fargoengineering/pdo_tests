@@ -22,6 +22,7 @@ PART = 19000
 MTU = 250
 
 ble_ota_dfu_end = False
+success = False
 
 slots = {}
 
@@ -37,11 +38,14 @@ async def start_ota(ble_address: str, filename: str):
 
     def handle_disconnect(_: BleakClient):
         print("Device disconnected !")
-        disconnected_event.set()
-        sleep(1)
-        global ble_ota_dfu_end
-        ble_ota_dfu_end = True
-        # sys.exit(0)
+        if(success):
+            disconnected_event.set()
+            sleep(1)
+            global ble_ota_dfu_end
+            ble_ota_dfu_end = True
+        else:
+            print("retrying...")
+            update()
 
     async def handle_rx(_: int, data: bytearray):
         # print(f'\nReceived: {data = }\n')
@@ -176,6 +180,7 @@ async def start_ota(ble_address: str, filename: str):
         while not ble_ota_dfu_end:
             await asyncio.sleep(1.0)
 
+        success = True
         print("Waiting for disconnect... ", end="")
 
         await disconnected_event.wait()
@@ -222,38 +227,45 @@ def split_and_append(input_string, existing_dict):
 
 # if __name__ == "__main__":
 def update():
-    print(header)
-    
+    # print(header)
+    print("Starting OTA Update...")
+    success=False
     slots.clear()
     
     asyncio.run(discover())
+    try:
 
-    for key in slots:
-        sleep(3)
-        ble_address = key
-        
-        print(f"Programming to {slots[key]}")
+        for key in slots:
+            sleep(3)
+            ble_address = key
+            
+            print(f"Programming to {slots[key]}")
 
-        # Check if the address is valid
-        if not is_valid_address(ble_address):
-            print(f"Invalid Address: {ble_address}")
-            # exit(2)
+            # Check if the address is valid
+            if not is_valid_address(ble_address):
+                print(f"Invalid Address: {ble_address}")
+                # exit(2)
 
-        # Check if the file exists
-        if not os.path.exists(filename):
-            print(f"File not found: {filename}")
-            exit(3)
+            # Check if the file exists
+            if not os.path.exists(filename):
+                print(f"File not found: {filename}")
+                exit(3)
 
-        try:
-            # Start the OTA update
-            asyncio.run(start_ota(ble_address, filename))
-        except KeyboardInterrupt:
-            print("\nExiting...")
-            exit(0)
-        except OSError:
-            print("\nExiting (OSError)...")
-            # exit(1)
-        except Exception:
-            import traceback
-            traceback.print_exc()
-            # exit(2)
+            try:
+                # Start the OTA update
+                asyncio.run(start_ota(ble_address, filename))
+            except KeyboardInterrupt:
+                print("\nExiting...")
+                exit(0)
+            except OSError:
+                print("\nExiting (OSError)...")
+                # Retry
+                update()
+            except Exception:
+                import traceback
+                traceback.print_exc()
+                # Retry
+                update()
+    except RuntimeError:
+        print("RuntimeError: Retrying now...")
+        update()

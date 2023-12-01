@@ -14,7 +14,9 @@ pdo = fei_pdo()
 ec = etherCAT()
 
 num_banks = 4
+num_slots = 32
 ble_command = 6
+
 # start EC Master
 ec.run_ec()
 
@@ -22,19 +24,42 @@ def reset_slot_commands():
     for i in range(len(pdo.slot_command)):
         pdo.slot_command[i] = 12    
 
-def send_pdo():
+def send_pdo(package):
     if len(ec.master.slaves) == 0:
         print("NO DEVICES ONLINE!")
         return False
     for slave in ec.master.slaves:
         print("Connected to "+slave.name)
-        slave.output = packed
+        slave.output = package
         ec.master.send_processdata()
         ec.master.receive_processdata(5000)
     return True
 
+# Update 1 slot at a time
+def update_1_at_a_time():
+    for slot in range(22,num_slots):
+        reset_slot_commands()
+        time.sleep(1)
+        pdo.slot_command[slot] = ble_command
+        
+        packed = pdo.pack_output()
+        
+        print(pdo.slot_command)
+        # Send the pdo to enable the current bank:
+        if send_pdo(packed) == False:
+            break
+        time.sleep(3)
 
-if __name__ == "__main__":            
+        update()        
+        time.sleep(3)
+    
+    # Turn off all bluetooth
+    reset_slot_commands()
+    send_pdo(pdo.pack_output())
+        
+        
+# Update 8 slots at a time:
+def update_8_at_a_time():
     for bank in range(1, num_banks + 1):
         print(bank)
         reset_slot_commands()
@@ -57,23 +82,23 @@ if __name__ == "__main__":
         else:
             print("no more banks!")
             break
-        
         packed = pdo.pack_output()
-        
         print(pdo.slot_command)
         # Send the pdo to enable the current bank:
-        if send_pdo() == False:
+        if send_pdo(packed) == False:
             break
-
         # stop sending ble on command    
         # reset_slot_commands()
         # if send_pdo() == False:
         #     break
-
         time.sleep(3)
-            
         # now that ble should be active, start the ota process:
         update()
-
         time.sleep(3)
         # repeat until all banks updated.                
+        
+        
+        
+if __name__ == "__main__":            
+    # update_8_at_a_time()
+    update_1_at_a_time()
