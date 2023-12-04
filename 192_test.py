@@ -40,9 +40,9 @@ while(1):
   for i in range(32):
     pdo.slot_aux[i] = j
     # Send random RGB values instead.
-    pdo.slot_command[i] = red
-    pdo.slot_data[i] = green
-    pdo.slot_aux[i] = blue
+    # pdo.slot_command[i] = red
+    # pdo.slot_data[i] = green
+    # pdo.slot_aux[i] = blue
   
   if j < 6: j=j+1
   else: j=1

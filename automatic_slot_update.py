@@ -22,7 +22,8 @@ ec.run_ec()
 
 def reset_slot_commands():
     for i in range(len(pdo.slot_command)):
-        pdo.slot_command[i] = 12    
+        pdo.slot_command[i] = 6 
+        pdo.slot_aux[i] = 0
 
 def send_pdo(package):
     if len(ec.master.slaves) == 0:
@@ -37,11 +38,11 @@ def send_pdo(package):
 
 # Update 1 slot at a time
 def update_1_at_a_time():
-    for slot in range(22,num_slots):
+    for slot in range(num_slots):
         reset_slot_commands()
         time.sleep(1)
         pdo.slot_command[slot] = ble_command
-        
+        pdo.slot_aux[slot] = 1
         packed = pdo.pack_output()
         
         print(pdo.slot_command)
