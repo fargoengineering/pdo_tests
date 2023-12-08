@@ -265,6 +265,13 @@ class etherCAT:
         unpacked_value = struct.unpack('Q', packed_value)[0]
 
         return unpacked_value
+    
+    def split_bytes(self,value):
+        byte1 = (value >> 24) & 0xFF
+        byte2 = (value >> 16) & 0xFF
+        byte3 = (value >> 8) & 0xFF
+        byte4 = value & 0xFF
+        return [byte1, byte2, byte3, byte4]
 
 
 

@@ -66,10 +66,10 @@ while(1):
     packed_input = slave.input #ec.master.slaves[0].input
     # print(packed_input)
     pdo.unpack_input(packed_input)
-    
-  print(f"Slot Command: {pdo.slot_command_in}")
-  print(f"Slot data: {pdo.slot_data_in}")
-  print(f"Slot Aux: {pdo.slot_aux_in}")
+          
+    print(f"Slot Command: {pdo.slot_command_in}")
+    print(f"Slot data: {pdo.slot_data_in}")
+    print(f"Slot Aux: {pdo.slot_aux_in}")
 
 
   # Read INPUT PDO
