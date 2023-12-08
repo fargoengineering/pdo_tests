@@ -17,7 +17,17 @@ def set_relay(board,slot,state):
     ec.master.slaves[board-1].output = pdo.pack_output()
     ec.master.send_processdata()
     ec.master.receive_processdata(5000)
-    
+
+def set_all_relays(state):
+    for i in range(32):
+        pdo.slot_command[i] = 7
+        pdo.slot_aux[i] = state
+        
+    for slave in ec.master.slaves:
+        slave.output = pdo.pack_output()
+        ec.master.send_processdata()
+        ec.master.receive_processdata(5000)
+
 # for i in range(32):
 #     pdo.slot_command[i] = 7
 #     pdo.slot_aux[i] = 0
@@ -30,12 +40,13 @@ def set_relay(board,slot,state):
 #     ec.master.receive_processdata(5000)
 #     time.sleep(1)
     
-# Turn all relays on board 1
+# Turn relays on board 1
 for i in range(32):
-    set_relay(1,i,3)
-    # set_relay(2,i,3)
+    # set_relay(1,i,1)
+    set_all_relays(1)
 
-time.sleep(3)
+time.sleep(1)
 
 for i in range(32):
-    set_relay(1,i,0)
+    # set_relay(1,i,0)
+    set_all_relays(0)

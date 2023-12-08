@@ -64,39 +64,54 @@ def adc_to_voltage(adc_value):
 
         return voltage
     
+
 # Set all slots to analog input
-thread = threading.Thread(target=get_input_one)
 for i in range(32):
     pdo.slot_command[i] = 5
     pdo.slot_aux[i] = 3
     
-packed = pdo.pack_output()
-set_output(packed)
-time.sleep(2)
-
+set_output(pdo.pack_output())
+time.sleep(1)
 # set the first slot command to 8 for loop counter:
 pdo.slot_command[0] = 8
 packed = pdo.pack_output()
+time.sleep(.5)
 set_output(packed)
 
-time.sleep(1)
-set_output(packed)
-# After one second, receive input from slot 1 (loop counter) from data.
 
+# Start Logging Data
+thread = threading.Thread(target=get_input_one)
+thread.start()
     
-get_input_one()
-print(f"data_in: {pdo.slot_data_in}")
-print(f"command_in: {pdo.slot_command_in}")
-data_bytes = ec.split_bytes(pdo.slot_data_in[0])
+start=time.time()
 
-print(f"loopcount: {pdo.slot_data_in[0]}")
+while(1):
+    data_list.append(int(pdo.slot_data_in[0]))
+    if time.time() - start > 1:
+        break
 
+i = 0
+with open('data.txt','w') as file:
+    for item in data_list:
+        file.write(f"{item}")
+            
+print(f"number of indistinct values: {i}")
+        
+    
+# # After one second, receive input from slot 1 (loop counter) from data.
+# get_input_one()
+# print(f"data_in: {pdo.slot_data_in}")
+# print(f"command_in: {pdo.slot_command_in}")
+# data_bytes = ec.split_bytes(pdo.slot_data_in[0])
+
+# print(f"loopcount: {pdo.slot_data_in[0]}")
+print(data_list)
 
 # Set all commands back to 5
 while(1):
     for i in range(32):
         pdo.slot_command[i] = 5
-        pdo.slot_aux[i] = 5
+        # pdo.slot_aux[i] = 3
     packed = pdo.pack_output()
     set_output(packed)
     time.sleep(.5)
