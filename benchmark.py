@@ -94,8 +94,6 @@ i = 0
 with open('data.txt','w') as file:
     for item in data_list:
         file.write(f"{item}")
-            
-print(f"number of indistinct values: {i}")
         
     
 # # After one second, receive input from slot 1 (loop counter) from data.
