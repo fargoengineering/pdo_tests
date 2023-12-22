@@ -24,11 +24,6 @@ def split_bytes(long):
     
     return data1,data2
 
-def split_bytes_gpt(long):
-    data1 = (long >> 16) & 0xFFFF
-    data2 = long & 0xFFFF
-    return data1, data2
-
 def get_input_one():
     packed_input = ec.master.slaves[0].input
     pdo.unpack_input(packed_input)

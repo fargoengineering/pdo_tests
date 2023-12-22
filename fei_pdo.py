@@ -44,40 +44,15 @@ class fei_pdo:
         self.slot_aux[slot_number] = data5_value
     
     def pack_output(self):
-        extraBytes_ = [int(val) for val in self.extraBytes[:8]]
-        
+        extraBytes_ = [int(val) for val in self.extraBytes[:8]]        
         # Convert the first 32 values in slot_command to integers
-        command_values = [int(val) for val in self.slot_command[:32]]
-        
+        command_values = [int(val) for val in self.slot_command[:32]]        
         # Convert the next 32 values in slot_data to longs
-        data_values = [int(val) for val in self.slot_data[:32]]
-        
+        data_values = [int(val) for val in self.slot_data[:32]]        
         # Convert the last 32 values in slot_aux to integers
         aux_values = [int(val) for val in self.slot_aux[:32]]
-
-        slot_all_pdo = [0] * 96 
-        # slot_all_pdo = [5,1,3]
-        
-        # for i in range(32):
-            # BlBBlb....
-            # slot_all_pdo[3*(i-1)] = self.slot_command[i-1]
-            # slot_all_pdo[(3*(i-1)) + 1] = self.slot_data[i-1]
-            # slot_all_pdo[(3*(i-1)) + 2] = self.slot_aux[i-1]
-        
-            # lBBlBB
-            # slot_all_pdo[3*(i-1)] = self.slot_data[i-1]
-            # slot_all_pdo[(3*(i-1)) + 1] = self.slot_command[i-1]
-            # slot_all_pdo[(3*(i-1)) + 2] = self.slot_aux[i-1]
-        
-        # print("SlotallPDO")
-        # print(slot_all_pdo)
-        
-        # Pack the values using the format string and the *args syntax
-        # self.packed_output = struct.pack(self.pack_format, *extraBytes_, *data_values, *command_values, *aux_values)      #256
-        self.packed_output = struct.pack(self.pack_format, *data_values, *command_values, *aux_values)      #192
-        # self.packed_output = struct.pack(self.pack_format, *data_values, *command_values)         #168
-        # self.packed_output = struct.pack(self.pack_format, *data_values)          #128
-        
+        slot_all_pdo = [0] * 96         
+        self.packed_output = struct.pack(self.pack_format, *data_values, *command_values, *aux_values)      #192        
         return self.packed_output
     
     def unpack_input(self,packed_input):
